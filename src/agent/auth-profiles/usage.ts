@@ -44,10 +44,18 @@ export function isProfileInCooldown(stats: ProfileUsageStats, now?: number): boo
  *
  * Formula: min(COOLDOWN_MAX_MS, COOLDOWN_BASE_MS * COOLDOWN_FACTOR ^ min(errorCount - 1, 3))
  */
-export function calculateCooldownMs(errorCount: number): number {
+function applyEqualJitter(baseMs: number, rng?: () => number): number {
+  if (baseMs <= 0) return 0;
+  const rand = Math.min(1, Math.max(0, (rng ?? Math.random)()));
+  const half = Math.floor(baseMs / 2);
+  return half + Math.floor(rand * (baseMs - half));
+}
+
+export function calculateCooldownMs(errorCount: number, rng?: () => number): number {
   if (errorCount <= 0) return 0;
   const exponent = Math.min(errorCount - 1, 3);
-  return Math.min(COOLDOWN_MAX_MS, COOLDOWN_BASE_MS * COOLDOWN_FACTOR ** exponent);
+  const base = Math.min(COOLDOWN_MAX_MS, COOLDOWN_BASE_MS * COOLDOWN_FACTOR ** exponent);
+  return applyEqualJitter(base, rng);
 }
 
 /**
@@ -56,13 +64,14 @@ export function calculateCooldownMs(errorCount: number): number {
  *
  * Formula: min(BILLING_MAX_HOURS, BILLING_BACKOFF_HOURS * 2 ^ (count - 1)) * hours_to_ms
  */
-export function calculateBillingDisableMs(billingFailCount: number): number {
+export function calculateBillingDisableMs(billingFailCount: number, rng?: () => number): number {
   if (billingFailCount <= 0) return 0;
   const hours = Math.min(
     BILLING_MAX_HOURS,
     BILLING_BACKOFF_HOURS * 2 ** (billingFailCount - 1),
   );
-  return hours * 60 * 60 * 1000;
+  const base = hours * 60 * 60 * 1000;
+  return applyEqualJitter(base, rng);
 }
 
 // ============================================================
@@ -83,6 +92,7 @@ export function computeNextProfileUsageStats(
   stats: ProfileUsageStats,
   reason: AuthProfileFailureReason,
   now?: number,
+  rng?: () => number,
 ): ProfileUsageStats {
   const ts = now ?? Date.now();
   const next = { ...stats };
@@ -106,11 +116,11 @@ export function computeNextProfileUsageStats(
   // Apply cooldown based on failure reason
   if (reason === "billing") {
     const billingCount = next.failureCounts.billing ?? 1;
-    const disableMs = calculateBillingDisableMs(billingCount);
+    const disableMs = calculateBillingDisableMs(billingCount, rng);
     next.disabledUntil = ts + disableMs;
     next.disabledReason = "billing";
   } else {
-    const cooldownMs = calculateCooldownMs(next.errorCount);
+    const cooldownMs = calculateCooldownMs(next.errorCount, rng);
     next.cooldownUntil = ts + cooldownMs;
   }
 
