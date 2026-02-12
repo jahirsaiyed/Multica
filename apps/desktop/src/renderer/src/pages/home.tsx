@@ -369,7 +369,7 @@ export default function HomePage() {
         <div className="flex items-center justify-between py-2">
           <span className="flex items-center gap-2 text-sm">
             <Brain className="size-4 text-muted-foreground" />
-            Your agent has {capabilitySummary}
+            Your agent currently has {capabilitySummary}
             <Tooltip>
               <TooltipTrigger
                 onClick={refreshCapabilities}
