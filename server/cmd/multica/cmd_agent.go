@@ -59,7 +59,7 @@ func newAPIClient(cmd *cobra.Command) (*cli.APIClient, error) {
 	workspaceID := resolveWorkspaceID(cmd)
 
 	if serverURL == "" {
-		return nil, fmt.Errorf("server URL not set: use --server-url flag, MULTICA_SERVER_URL env, or 'multica-cli config set server_url <url>'")
+		return nil, fmt.Errorf("server URL not set: use --server-url flag, MULTICA_SERVER_URL env, or 'multica config set server_url <url>'")
 	}
 
 	return cli.NewAPIClient(serverURL, workspaceID), nil

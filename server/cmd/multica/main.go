@@ -12,9 +12,9 @@ var (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "multica-cli",
+	Use:   "multica",
 	Short: "Multica CLI — local agent runtime and management tool",
-	Long:  "multica-cli manages local agent runtimes and provides control commands for the Multica platform.",
+	Long:  "multica manages local agent runtimes and provides control commands for the Multica platform.",
 	SilenceUsage:  true,
 	SilenceErrors: true,
 }
