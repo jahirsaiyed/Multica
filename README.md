@@ -13,6 +13,32 @@ For the full local development workflow, see [Local Development Guide](LOCAL_DEV
 
 ## Quick Start
 
+### Using Multica (CLI)
+
+```bash
+# 1. Install the CLI
+brew tap multica-ai/tap
+brew install multica-cli
+
+# 2. Login and auto-watch your workspaces
+multica login
+
+# 3. Start the local agent daemon
+multica daemon start
+```
+
+The daemon auto-detects available agent CLIs (`claude`, `codex`) on your PATH and begins polling your watched workspaces for tasks.
+
+Manage which workspaces the daemon monitors:
+
+```bash
+multica workspace list                    # List all workspaces (* = watched)
+multica workspace watch <workspace-id>    # Add a workspace to the watch list
+multica workspace unwatch <workspace-id>  # Remove a workspace from the watch list
+```
+
+### Local Development
+
 ```bash
 # 1. Install dependencies
 pnpm install
