@@ -1417,6 +1417,7 @@ export default function AgentsPage() {
         {/* Right column — agent detail */}
         {selected ? (
           <AgentDetail
+            key={selected.id}
             agent={selected}
             runtimes={runtimes}
             onUpdate={handleUpdate}
