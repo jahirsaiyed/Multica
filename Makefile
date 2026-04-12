@@ -1,4 +1,4 @@
-.PHONY: dev server daemon cli multica build test migrate-up migrate-down sqlc seed clean setup start stop check worktree-env setup-main start-main stop-main check-main setup-worktree start-worktree stop-worktree check-worktree db-up db-down selfhost selfhost-stop
+.PHONY: dev server daemon cli multica build test migrate-up migrate-down sqlc seed clean setup start stop check worktree-env setup-main start-main stop-main check-main setup-worktree start-worktree stop-worktree check-worktree db-up db-down selfhost selfhost-stop kb
 
 MAIN_ENV_FILE ?= .env
 WORKTREE_ENV_FILE ?= .env.worktree
@@ -216,6 +216,9 @@ migrate-down:
 
 sqlc:
 	cd server && sqlc generate
+
+kb: ## Regenerate knowledge base and repomix packs
+	bash kb/generate.sh
 
 # Cleanup
 clean:

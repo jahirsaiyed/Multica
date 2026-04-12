@@ -106,8 +106,14 @@ func LoadConfig(overrides Overrides) (Config, error) {
 			Model: strings.TrimSpace(os.Getenv("MULTICA_HERMES_MODEL")),
 		}
 	}
+	if gemmaAPIKey := strings.TrimSpace(os.Getenv("MULTICA_GEMMA_API_KEY")); gemmaAPIKey != "" {
+		agents["gemma"] = AgentEntry{
+			Path:  "gemma-api", // synthetic sentinel; not a real binary
+			Model: strings.TrimSpace(os.Getenv("MULTICA_GEMMA_MODEL")),
+		}
+	}
 	if len(agents) == 0 {
-		return Config{}, fmt.Errorf("no agent CLI found: install claude, codex, opencode, openclaw, or hermes and ensure it is on PATH")
+		return Config{}, fmt.Errorf("no agent found: install claude, codex, opencode, openclaw, or hermes and ensure it is on PATH, or set MULTICA_GEMMA_API_KEY to use the Gemma HTTP backend")
 	}
 
 	// Host info
