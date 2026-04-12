@@ -1,0 +1,26 @@
+{
+  "output": {
+    "filePath": "kb/frontend.xml",
+    "style": "xml",
+    "instructionFilePath": "kb/instructions.md"
+  },
+  "include": [
+    "packages/**/*.ts",
+    "packages/**/*.tsx",
+    "apps/web/**/*.ts",
+    "apps/web/**/*.tsx",
+    "apps/desktop/src/**/*.ts",
+    "apps/desktop/src/**/*.tsx"
+  ],
+  "ignore": {
+    "customPatterns": [
+      "pnpm-lock.yaml",
+      "**/*.tsbuildinfo",
+      "**/*.test.ts",
+      "**/*.test.tsx",
+      "**/*.spec.ts",
+      "**/vitest.config.*",
+      "**/eslint.config.*"
+    ]
+  }
+}
