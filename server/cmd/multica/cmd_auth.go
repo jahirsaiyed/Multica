@@ -47,6 +47,7 @@ var authLogoutCmd = &cobra.Command{
 
 func init() {
 	authLoginCmd.Flags().Bool("token", false, "Authenticate by pasting a personal access token")
+	authLoginCmd.Flags().String("app-url", "", "Multica app URL (e.g. https://multica-web-livid.vercel.app)")
 	authCmd.AddCommand(authLoginCmd)
 	authCmd.AddCommand(authStatusCmd)
 	authCmd.AddCommand(authLogoutCmd)
@@ -62,6 +63,11 @@ func resolveToken(cmd *cobra.Command) string {
 }
 
 func resolveAppURL(cmd *cobra.Command) string {
+	if cmd != nil {
+		if f := cmd.Flags().Lookup("app-url"); f != nil && f.Changed {
+			return strings.TrimRight(f.Value.String(), "/")
+		}
+	}
 	for _, key := range []string{"MULTICA_APP_URL", "FRONTEND_ORIGIN"} {
 		if val := strings.TrimSpace(os.Getenv(key)); val != "" {
 			return strings.TrimRight(val, "/")

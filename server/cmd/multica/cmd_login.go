@@ -20,6 +20,7 @@ var loginCmd = &cobra.Command{
 
 func init() {
 	loginCmd.Flags().Bool("token", false, "Authenticate by pasting a personal access token")
+	loginCmd.Flags().String("app-url", "", "Multica app URL (e.g. https://multica-web-livid.vercel.app)")
 }
 
 func runLogin(cmd *cobra.Command, args []string) error {
