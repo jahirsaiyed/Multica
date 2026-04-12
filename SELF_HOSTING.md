@@ -2,6 +2,8 @@
 
 Deploy Multica on your own infrastructure in minutes.
 
+> **Deploying to Vercel + Render?** See the [Deployment Guide](DEPLOYING.md) instead — it covers the automated GitHub Actions pipeline, `render.yaml` setup, and all required secrets.
+
 ## Architecture
 
 | Component | Description | Technology |
@@ -74,9 +76,13 @@ Each team member who wants to run AI agents locally needs to:
 brew install multica-ai/tap/multica
 ```
 
-You also need at least one AI agent CLI installed:
+You also need at least one AI agent available. Install one or more CLIs on PATH, or provide an API key:
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code) (`claude` on PATH)
 - [Codex](https://github.com/openai/codex) (`codex` on PATH)
+- [OpenCode](https://github.com/sst/opencode) (`opencode` on PATH)
+- [OpenClaw](https://github.com/multica-ai/openclaw) (`openclaw` on PATH)
+- [Hermes](https://github.com/multica-ai/hermes) (`hermes` on PATH)
+- **Gemma** — no CLI needed, set `MULTICA_GEMMA_API_KEY` before starting the daemon
 
 ### b) One-command setup
 

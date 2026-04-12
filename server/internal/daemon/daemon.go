@@ -230,14 +230,21 @@ func (d *Daemon) providerToRuntimeMap() map[string]string {
 func (d *Daemon) registerRuntimesForWorkspace(ctx context.Context, workspaceID string) (*RegisterResponse, error) {
 	var runtimes []map[string]string
 	for name, entry := range d.cfg.Agents {
-		version, err := agent.DetectVersion(ctx, entry.Path)
-		if err != nil {
-			d.logger.Warn("skip registering runtime", "name", name, "error", err)
-			continue
-		}
-		if err := agent.CheckMinVersion(name, version); err != nil {
-			d.logger.Warn("skip registering runtime: version too old", "name", name, "version", version, "error", err)
-			continue
+		var version string
+		if name == "gemma" {
+			// Gemma is an HTTP-based backend — no binary to probe.
+			version = "http-api"
+		} else {
+			var err error
+			version, err = agent.DetectVersion(ctx, entry.Path)
+			if err != nil {
+				d.logger.Warn("skip registering runtime", "name", name, "error", err)
+				continue
+			}
+			if err := agent.CheckMinVersion(name, version); err != nil {
+				d.logger.Warn("skip registering runtime: version too old", "name", name, "version", version, "error", err)
+				continue
+			}
 		}
 		displayName := strings.ToUpper(name[:1]) + name[1:]
 		if d.cfg.DeviceName != "" {

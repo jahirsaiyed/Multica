@@ -28,6 +28,9 @@ catalog:
   # Icons
   lucide-react: "^1.0.1"
 
+  # AI / Knowledge tools
+  repomix: "^0.3.0"
+
   # Testing
   vitest: "^4.1.0"
   jsdom: "^29.0.1"

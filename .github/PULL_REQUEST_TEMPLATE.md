@@ -26,6 +26,7 @@ Closes #<!-- issue number -->
 - [ ] `make check` passes (typecheck, unit tests, Go tests, E2E)
 - [ ] Changes follow existing code patterns and conventions
 - [ ] No unrelated changes included
+- [ ] If this PR adds/removes API routes, SQL queries, or shared packages: ran `make kb` and updated `kb/` markdown files
 
 ## AI Disclosure (optional)
 
