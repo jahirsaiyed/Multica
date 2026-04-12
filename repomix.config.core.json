@@ -1,0 +1,16 @@
+{
+  "output": {
+    "filePath": "kb/core.xml",
+    "style": "xml",
+    "instructionFilePath": "kb/instructions.md"
+  },
+  "include": [
+    "packages/core/**/*.ts",
+    "packages/core/**/*.tsx"
+  ],
+  "ignore": {
+    "customPatterns": [
+      "**/*.test.ts"
+    ]
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "output": {
+    "filePath": "kb/backend.xml",
+    "style": "xml",
+    "instructionFilePath": "kb/instructions.md"
+  },
+  "include": [
+    "server/**/*.go",
+    "server/sqlc.yaml",
+    "server/go.mod",
+    "server/pkg/db/queries/**/*.sql"
+  ],
+  "ignore": {
+    "customPatterns": [
+      "server/pkg/db/generated/**",
+      "server/migrations/**",
+      "**/*_test.go"
+    ]
+  }
+}

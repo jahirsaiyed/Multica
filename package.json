@@ -11,7 +11,13 @@
     "test": "turbo test",
     "lint": "turbo lint",
     "clean": "turbo clean && rm -rf node_modules",
-    "ui:add": "cd packages/ui && npx shadcn@latest add"
+    "ui:add": "cd packages/ui && npx shadcn@latest add",
+    "repomix:full": "node ./node_modules/repomix/bin/repomix.cjs --config repomix.config.json",
+    "repomix:frontend": "node ./node_modules/repomix/bin/repomix.cjs --config repomix.config.frontend.json",
+    "repomix:backend": "node ./node_modules/repomix/bin/repomix.cjs --config repomix.config.backend.json",
+    "repomix:core": "node ./node_modules/repomix/bin/repomix.cjs --config repomix.config.core.json",
+    "repomix:all": "pnpm repomix:full && pnpm repomix:frontend && pnpm repomix:backend && pnpm repomix:core",
+    "kb:generate": "bash kb/generate.sh"
   },
   "packageManager": "pnpm@10.28.2",
   "pnpm": {
@@ -29,6 +35,7 @@
     "@types/node": "catalog:",
     "@types/pg": "^8.20.0",
     "pg": "^8.20.0",
+    "repomix": "catalog:",
     "turbo": "^2.5.4",
     "typescript": "catalog:"
   }
