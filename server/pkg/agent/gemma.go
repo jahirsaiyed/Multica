@@ -1,7 +1,6 @@
 package agent
 
 import (
-	"bufio"
 	"bytes"
 	"context"
 	"encoding/json"
@@ -144,83 +143,60 @@ func (b *gemmaBackend) Execute(ctx context.Context, prompt string, opts ExecOpti
 			return
 		}
 
-		// Stream-parse the response body.
-		// Google's streaming format is a JSON array split across lines:
-		//   [
-		//   {"candidates":[...]},
-		//   ,{"candidates":[...],"usageMetadata":{...}}
-		//   ]
-		// Each element may also be prefixed with "data: " (SSE resilience).
-		var output strings.Builder
-		var lastUsage *gemmaUsageMetadata
-
-		scanner := bufio.NewScanner(resp.Body)
-		scanner.Buffer(make([]byte, 0, 1024*1024), 10*1024*1024)
-
-		for scanner.Scan() {
-			line := scanner.Text()
-
-			// Strip SSE prefix if present.
-			if after, ok := strings.CutPrefix(line, "data: "); ok {
-				line = after
-			}
-
-			// Strip JSON array envelope characters.
-			line = strings.TrimSpace(line)
-			line = strings.TrimLeft(line, "[,")
-			line = strings.TrimRight(line, "]")
-			line = strings.TrimSpace(line)
-
-			if line == "" {
-				continue
-			}
-
-			var chunk gemmaChunk
-			if err := json.Unmarshal([]byte(line), &chunk); err != nil {
-				continue
-			}
-
-			// Capture usage metadata (last chunk usually has the final counts).
-			if chunk.UsageMetadata != nil {
-				lastUsage = chunk.UsageMetadata
-			}
-
-			// Emit text from each candidate's parts.
-			for _, candidate := range chunk.Candidates {
-				for _, part := range candidate.Content.Parts {
-					if part.Text != "" {
-						output.WriteString(part.Text)
-						trySend(msgCh, Message{Type: MessageText, Content: part.Text})
-					}
-				}
-			}
-		}
+		// Read the full response body.
+		// Google's streamGenerateContent returns a pretty-printed JSON array
+		// (multi-line), not SSE. We must read the whole body before parsing.
+		respBytes, readErr := io.ReadAll(io.LimitReader(resp.Body, 50*1024*1024))
 
 		duration := time.Since(startTime)
 
-		// Determine final status.
+		// Determine final status — check context first in case read was cut short.
 		finalStatus := "completed"
 		var finalError string
-		if scanErr := scanner.Err(); scanErr != nil {
-			if runCtx.Err() == context.DeadlineExceeded {
-				finalStatus = "timeout"
-				finalError = fmt.Sprintf("gemma: timed out after %s", timeout)
-			} else if runCtx.Err() == context.Canceled {
-				finalStatus = "aborted"
-				finalError = "execution cancelled"
-			} else {
-				finalStatus = "failed"
-				finalError = fmt.Sprintf("gemma: read response: %v", scanErr)
-			}
-		} else if runCtx.Err() == context.DeadlineExceeded {
+		if runCtx.Err() == context.DeadlineExceeded {
 			finalStatus = "timeout"
 			finalError = fmt.Sprintf("gemma: timed out after %s", timeout)
 		} else if runCtx.Err() == context.Canceled {
 			finalStatus = "aborted"
 			finalError = "execution cancelled"
+		} else if readErr != nil {
+			finalStatus = "failed"
+			finalError = fmt.Sprintf("gemma: read response: %v", readErr)
 		}
 
-		b.cfg.Logger.Info("gemma: finished", "model", model, "status", finalStatus, "duration", duration.Round(time.Millisecond).String())
+		var output strings.Builder
+		var lastUsage *gemmaUsageMetadata
+
+		if finalStatus == "completed" {
+			var chunks []gemmaChunk
+			if err := json.Unmarshal(respBytes, &chunks); err != nil {
+				b.cfg.Logger.Warn("gemma: failed to parse response body", "error", err, "body_preview", previewBytes(respBytes, 500))
+				finalStatus = "failed"
+				finalError = fmt.Sprintf("gemma: parse response: %v", err)
+			} else {
+				for _, chunk := range chunks {
+					if chunk.UsageMetadata != nil {
+						lastUsage = chunk.UsageMetadata
+					}
+					for _, candidate := range chunk.Candidates {
+						if candidate.FinishReason != "" && candidate.FinishReason != "STOP" {
+							b.cfg.Logger.Warn("gemma: candidate finish reason", "reason", candidate.FinishReason)
+						}
+						for _, part := range candidate.Content.Parts {
+							if part.Text != "" {
+								output.WriteString(part.Text)
+								trySend(msgCh, Message{Type: MessageText, Content: part.Text})
+							}
+						}
+					}
+				}
+			}
+		}
+
+		b.cfg.Logger.Info("gemma: finished", "model", model, "status", finalStatus, "duration", duration.Round(time.Millisecond).String(), "output_len", output.Len())
+		if output.Len() == 0 && finalStatus == "completed" {
+			b.cfg.Logger.Warn("gemma: completed but output is empty — check model name or safety filters", "model", model)
+		}
 
 		// Build usage map.
 		var usageMap map[string]TokenUsage
@@ -279,4 +255,12 @@ type gemmaCandidate struct {
 type gemmaUsageMetadata struct {
 	PromptTokenCount     int64 `json:"promptTokenCount"`
 	CandidatesTokenCount int64 `json:"candidatesTokenCount"`
+}
+
+// previewBytes returns up to n bytes of b as a string for debug logging.
+func previewBytes(b []byte, n int) string {
+	if len(b) <= n {
+		return string(b)
+	}
+	return string(b[:n]) + "…"
 }
