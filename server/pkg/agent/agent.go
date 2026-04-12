@@ -107,8 +107,10 @@ func New(agentType string, cfg Config) (Backend, error) {
 		return &hermesBackend{cfg: cfg}, nil
 	case "gemma":
 		return &gemmaBackend{cfg: cfg}, nil
+	case "openrouter":
+		return &openrouterBackend{cfg: cfg}, nil
 	default:
-		return nil, fmt.Errorf("unknown agent type: %q (supported: claude, codex, opencode, openclaw, hermes, gemma)", agentType)
+		return nil, fmt.Errorf("unknown agent type: %q (supported: claude, codex, opencode, openclaw, hermes, gemma, openrouter)", agentType)
 	}
 }
 
