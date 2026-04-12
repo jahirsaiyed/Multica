@@ -2,6 +2,8 @@
 
 Deploy Multica on your own infrastructure in minutes.
 
+> **Deploying to Vercel + Render?** See the [Deployment Guide](DEPLOYING.md) instead — it covers the automated GitHub Actions pipeline, `render.yaml` setup, and all required secrets.
+
 ## Architecture
 
 | Component | Description | Technology |

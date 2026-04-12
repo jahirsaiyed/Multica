@@ -20,7 +20,7 @@ Turn coding agents into real teammates — assign tasks, track progress, compoun
 [![CI](https://github.com/multica-ai/multica/actions/workflows/ci.yml/badge.svg)](https://github.com/multica-ai/multica/actions/workflows/ci.yml)
 [![GitHub stars](https://img.shields.io/github/stars/multica-ai/multica?style=flat)](https://github.com/multica-ai/multica/stargazers)
 
-[Website](https://multica.ai) · [Cloud](https://multica.ai/app) · [X](https://x.com/multica_hq) · [Self-Hosting](SELF_HOSTING.md) · [Contributing](CONTRIBUTING.md)
+[Website](https://multica.ai) · [Cloud](https://multica.ai/app) · [X](https://x.com/multica_hq) · [Deploy](DEPLOYING.md) · [Self-Hosting](SELF_HOSTING.md) · [Contributing](CONTRIBUTING.md)
 
 **English | [简体中文](README.zh-CN.md)**
 
@@ -143,6 +143,22 @@ See the [CLI and Daemon Guide](CLI_AND_DAEMON.md) for the full command reference
 | Backend | Go (Chi router, sqlc, gorilla/websocket) |
 | Database | PostgreSQL 17 with pgvector |
 | Agent Runtime | Local daemon executing Claude Code, Codex, OpenClaw, OpenCode, or Gemma |
+
+## Deployment
+
+Multica ships with a GitHub Actions pipeline that deploys automatically on every push to `main`:
+
+| Layer | Platform |
+|-------|----------|
+| Frontend | [Vercel](https://vercel.com) |
+| Backend API | [Render](https://render.com) |
+| Database | Render Managed PostgreSQL |
+
+Migrations run automatically on each backend deploy. See the [Deployment Guide](DEPLOYING.md) for step-by-step setup, required secrets, and environment variables.
+
+> **Self-hosting on your own machine or server?** See the [Self-Hosting Guide](SELF_HOSTING.md).
+
+---
 
 ## Development
 
