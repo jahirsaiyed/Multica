@@ -33,6 +33,13 @@ DELETE FROM mcp_server WHERE id = $1;
 
 -- Agent-MCP Server junction
 
+-- name: ListAgentMCPServersByWorkspace :many
+SELECT ams.agent_id, ms.*
+FROM mcp_server ms
+JOIN agent_mcp_server ams ON ams.mcp_server_id = ms.id
+WHERE ms.workspace_id = $1
+ORDER BY ms.name ASC;
+
 -- name: ListAgentMCPServers :many
 SELECT ms.* FROM mcp_server ms
 JOIN agent_mcp_server ams ON ams.mcp_server_id = ms.id

@@ -201,6 +201,53 @@ func (q *Queries) DeleteMCPServer(ctx context.Context, id pgtype.UUID) error {
 	return err
 }
 
+const listAgentMCPServersByWorkspace = `-- name: ListAgentMCPServersByWorkspace :many
+SELECT ams.agent_id, ms.id, ms.workspace_id, ms.name, ms.description, ms.transport, ms.command, ms.args, ms.env, ms.url, ms.headers, ms.created_by, ms.created_at, ms.updated_at FROM mcp_server ms
+JOIN agent_mcp_server ams ON ams.mcp_server_id = ms.id
+WHERE ms.workspace_id = $1
+ORDER BY ms.name ASC
+`
+
+type ListAgentMCPServersByWorkspaceRow struct {
+	AgentID pgtype.UUID `json:"agent_id"`
+	McpServer
+}
+
+func (q *Queries) ListAgentMCPServersByWorkspace(ctx context.Context, workspaceID pgtype.UUID) ([]ListAgentMCPServersByWorkspaceRow, error) {
+	rows, err := q.db.Query(ctx, listAgentMCPServersByWorkspace, workspaceID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListAgentMCPServersByWorkspaceRow{}
+	for rows.Next() {
+		var i ListAgentMCPServersByWorkspaceRow
+		if err := rows.Scan(
+			&i.AgentID,
+			&i.McpServer.ID,
+			&i.McpServer.WorkspaceID,
+			&i.McpServer.Name,
+			&i.McpServer.Description,
+			&i.McpServer.Transport,
+			&i.McpServer.Command,
+			&i.McpServer.Args,
+			&i.McpServer.Env,
+			&i.McpServer.Url,
+			&i.McpServer.Headers,
+			&i.McpServer.CreatedBy,
+			&i.McpServer.CreatedAt,
+			&i.McpServer.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listAgentMCPServers = `-- name: ListAgentMCPServers :many
 
 SELECT ms.id, ms.workspace_id, ms.name, ms.description, ms.transport, ms.command, ms.args, ms.env, ms.url, ms.headers, ms.created_by, ms.created_at, ms.updated_at FROM mcp_server ms

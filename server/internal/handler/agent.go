@@ -27,8 +27,9 @@ type AgentResponse struct {
 	Status             string          `json:"status"`
 	MaxConcurrentTasks int32           `json:"max_concurrent_tasks"`
 	OwnerID            *string         `json:"owner_id"`
-	Skills             []SkillResponse `json:"skills"`
-	CreatedAt          string          `json:"created_at"`
+	Skills             []SkillResponse    `json:"skills"`
+	MCPServers         []MCPServerResponse `json:"mcp_servers"`
+	CreatedAt          string             `json:"created_at"`
 	UpdatedAt          string          `json:"updated_at"`
 	ArchivedAt         *string         `json:"archived_at"`
 	ArchivedBy         *string         `json:"archived_by"`
@@ -58,6 +59,7 @@ func agentToResponse(a db.Agent) AgentResponse {
 		MaxConcurrentTasks: a.MaxConcurrentTasks,
 		OwnerID:            uuidToPtr(a.OwnerID),
 		Skills:             []SkillResponse{},
+		MCPServers:         []MCPServerResponse{},
 		CreatedAt:          timestampToString(a.CreatedAt),
 		UpdatedAt:          timestampToString(a.UpdatedAt),
 		ArchivedAt:         timestampToPtr(a.ArchivedAt),
@@ -161,12 +163,27 @@ func (h *Handler) ListAgents(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
+	// Batch-load MCP servers for all agents to avoid N+1.
+	mcpRows, err := h.Queries.ListAgentMCPServersByWorkspace(r.Context(), parseUUID(workspaceID))
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to load agent mcp servers")
+		return
+	}
+	mcpMap := map[string][]MCPServerResponse{}
+	for _, row := range mcpRows {
+		agentID := uuidToString(row.AgentID)
+		mcpMap[agentID] = append(mcpMap[agentID], mcpServerToResponse(row.McpServer))
+	}
+
 	// All agents (including private) are visible to workspace members.
 	visible := make([]AgentResponse, 0, len(agents))
 	for _, a := range agents {
 		resp := agentToResponse(a)
 		if skills, ok := skillMap[resp.ID]; ok {
 			resp.Skills = skills
+		}
+		if mcpServers, ok := mcpMap[resp.ID]; ok {
+			resp.MCPServers = mcpServers
 		}
 		visible = append(visible, resp)
 	}
@@ -190,6 +207,17 @@ func (h *Handler) GetAgent(w http.ResponseWriter, r *http.Request) {
 		resp.Skills = make([]SkillResponse, len(skills))
 		for i, s := range skills {
 			resp.Skills[i] = skillToResponse(s)
+		}
+	}
+	mcpServers, err := h.Queries.ListAgentMCPServers(r.Context(), agent.ID)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to load agent mcp servers")
+		return
+	}
+	if len(mcpServers) > 0 {
+		resp.MCPServers = make([]MCPServerResponse, len(mcpServers))
+		for i, m := range mcpServers {
+			resp.MCPServers[i] = mcpServerToResponse(m)
 		}
 	}
 	writeJSON(w, http.StatusOK, resp)
