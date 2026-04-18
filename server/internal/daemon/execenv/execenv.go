@@ -33,6 +33,7 @@ type TaskContextForEnv struct {
 	AgentName         string
 	AgentInstructions string // agent identity/persona instructions, injected into CLAUDE.md
 	AgentSkills       []SkillContextForEnv
+	AgentMCPServers   []MCPServerContextForEnv
 	Repos             []RepoContextForEnv // workspace repos available for checkout
 	ChatSessionID     string              // non-empty for chat tasks
 }
@@ -48,6 +49,17 @@ type SkillContextForEnv struct {
 type SkillFileContextForEnv struct {
 	Path    string
 	Content string
+}
+
+// MCPServerContextForEnv represents an MCP server config for the execution environment.
+type MCPServerContextForEnv struct {
+	Name      string
+	Transport string
+	Command   string
+	Args      []string
+	Env       map[string]string
+	URL       string
+	Headers   map[string]string
 }
 
 // Environment represents a prepared, isolated execution environment.

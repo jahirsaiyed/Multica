@@ -32,6 +32,7 @@
     "./auth": "./auth/index.ts",
     "./search": "./search/index.ts",
     "./chat": "./chat/index.ts",
+    "./mcp-servers": "./mcp-servers/index.ts",
     "./settings": "./settings/index.ts"
   },
   "dependencies": {

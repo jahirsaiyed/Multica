@@ -58,6 +58,11 @@ const (
 	EventSkillUpdated = "skill:updated"
 	EventSkillDeleted = "skill:deleted"
 
+	// MCP Server events
+	EventMCPServerCreated = "mcp_server:created"
+	EventMCPServerUpdated = "mcp_server:updated"
+	EventMCPServerDeleted = "mcp_server:deleted"
+
 	// Chat events
 	EventChatMessage = "chat:message"
 	EventChatDone    = "chat:done"

@@ -39,10 +39,11 @@ type Task struct {
 
 // AgentData holds agent details returned by the claim endpoint.
 type AgentData struct {
-	ID           string      `json:"id"`
-	Name         string      `json:"name"`
-	Instructions string      `json:"instructions"`
-	Skills       []SkillData `json:"skills"`
+	ID           string            `json:"id"`
+	Name         string            `json:"name"`
+	Instructions string            `json:"instructions"`
+	Skills       []SkillData       `json:"skills"`
+	MCPServers   []MCPServerData   `json:"mcp_servers,omitempty"`
 }
 
 // SkillData represents a structured skill for task execution.
@@ -56,6 +57,18 @@ type SkillData struct {
 type SkillFileData struct {
 	Path    string `json:"path"`
 	Content string `json:"content"`
+}
+
+// MCPServerData represents an MCP server configuration from the claim endpoint.
+type MCPServerData struct {
+	ID        string            `json:"id"`
+	Name      string            `json:"name"`
+	Transport string            `json:"transport"`
+	Command   *string           `json:"command,omitempty"`
+	Args      []string          `json:"args"`
+	Env       map[string]string `json:"env"`
+	URL       *string           `json:"url,omitempty"`
+	Headers   map[string]string `json:"headers"`
 }
 
 // TaskUsageEntry represents token usage for a single model during a task execution.

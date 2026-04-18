@@ -52,6 +52,7 @@ export interface Agent {
   max_concurrent_tasks: number;
   owner_id: string | null;
   skills: Skill[];
+  mcp_servers: MCPServer[];
   created_at: string;
   updated_at: string;
   archived_at: string | null;
@@ -123,6 +124,43 @@ export interface UpdateSkillRequest {
 
 export interface SetAgentSkillsRequest {
   skill_ids: string[];
+}
+
+// MCP Servers
+
+export type MCPTransport = "stdio" | "sse";
+
+export interface MCPServer {
+  id: string;
+  workspace_id: string;
+  name: string;
+  description: string;
+  transport: MCPTransport;
+  command?: string;
+  args: string[];
+  env: Record<string, string>;
+  url?: string;
+  headers: Record<string, string>;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateMCPServerRequest {
+  name: string;
+  description?: string;
+  transport: MCPTransport;
+  command?: string;
+  args?: string[];
+  env?: Record<string, string>;
+  url?: string;
+  headers?: Record<string, string>;
+}
+
+export interface UpdateMCPServerRequest extends Partial<CreateMCPServerRequest> {}
+
+export interface SetAgentMCPServersRequest {
+  mcp_server_ids: string[];
 }
 
 export type RuntimePingStatus = "pending" | "running" | "completed" | "failed" | "timeout";

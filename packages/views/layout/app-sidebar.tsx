@@ -24,6 +24,7 @@ import {
   Plus,
   Check,
   BookOpenText,
+  Plug,
   SquarePen,
   CircleUser,
   FolderKanban,
@@ -81,6 +82,7 @@ const workspaceNav = [
 const configureNav = [
   { href: "/runtimes", label: "Runtimes", icon: Monitor },
   { href: "/skills", label: "Skills", icon: BookOpenText },
+  { href: "/mcp-servers", label: "MCP Servers", icon: Plug },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 

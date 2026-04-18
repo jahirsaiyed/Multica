@@ -27,6 +27,10 @@ import type {
   CreateSkillRequest,
   UpdateSkillRequest,
   SetAgentSkillsRequest,
+  MCPServer,
+  CreateMCPServerRequest,
+  UpdateMCPServerRequest,
+  SetAgentMCPServersRequest,
   PersonalAccessToken,
   CreatePersonalAccessTokenRequest,
   CreatePersonalAccessTokenResponse,
@@ -582,6 +586,44 @@ export class ApiClient {
 
   async setAgentSkills(agentId: string, data: SetAgentSkillsRequest): Promise<void> {
     await this.fetch(`/api/agents/${agentId}/skills`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    });
+  }
+
+  // MCP Servers
+  async listMCPServers(): Promise<MCPServer[]> {
+    return this.fetch("/api/mcp-servers");
+  }
+
+  async getMCPServer(id: string): Promise<MCPServer> {
+    return this.fetch(`/api/mcp-servers/${id}`);
+  }
+
+  async createMCPServer(data: CreateMCPServerRequest): Promise<MCPServer> {
+    return this.fetch("/api/mcp-servers", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateMCPServer(id: string, data: UpdateMCPServerRequest): Promise<MCPServer> {
+    return this.fetch(`/api/mcp-servers/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteMCPServer(id: string): Promise<void> {
+    await this.fetch(`/api/mcp-servers/${id}`, { method: "DELETE" });
+  }
+
+  async listAgentMCPServers(agentId: string): Promise<MCPServer[]> {
+    return this.fetch(`/api/agents/${agentId}/mcp-servers`);
+  }
+
+  async setAgentMCPServers(agentId: string, data: SetAgentMCPServersRequest): Promise<void> {
+    await this.fetch(`/api/agents/${agentId}/mcp-servers`, {
       method: "PUT",
       body: JSON.stringify(data),
     });

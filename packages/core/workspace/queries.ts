@@ -7,6 +7,7 @@ export const workspaceKeys = {
   members: (wsId: string) => ["workspaces", wsId, "members"] as const,
   agents: (wsId: string) => ["workspaces", wsId, "agents"] as const,
   skills: (wsId: string) => ["workspaces", wsId, "skills"] as const,
+  mcpServers: (wsId: string) => ["workspaces", wsId, "mcp-servers"] as const,
   assigneeFrequency: (wsId: string) => ["workspaces", wsId, "assignee-frequency"] as const,
 };
 
@@ -36,6 +37,13 @@ export function skillListOptions(wsId: string) {
   return queryOptions({
     queryKey: workspaceKeys.skills(wsId),
     queryFn: () => api.listSkills(),
+  });
+}
+
+export function mcpServerListOptions(wsId: string) {
+  return queryOptions({
+    queryKey: workspaceKeys.mcpServers(wsId),
+    queryFn: () => api.listMCPServers(),
   });
 }
 

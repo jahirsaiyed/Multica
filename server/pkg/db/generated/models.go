@@ -55,6 +55,11 @@ type AgentRuntime struct {
 	OwnerID     pgtype.UUID        `json:"owner_id"`
 }
 
+type AgentMcpServer struct {
+	AgentID     pgtype.UUID `json:"agent_id"`
+	McpServerID pgtype.UUID `json:"mcp_server_id"`
+}
+
 type AgentSkill struct {
 	AgentID   pgtype.UUID        `json:"agent_id"`
 	SkillID   pgtype.UUID        `json:"skill_id"`
@@ -235,6 +240,22 @@ type IssueSubscriber struct {
 type IssueToLabel struct {
 	IssueID pgtype.UUID `json:"issue_id"`
 	LabelID pgtype.UUID `json:"label_id"`
+}
+
+type McpServer struct {
+	ID          pgtype.UUID        `json:"id"`
+	WorkspaceID pgtype.UUID        `json:"workspace_id"`
+	Name        string             `json:"name"`
+	Description string             `json:"description"`
+	Transport   string             `json:"transport"`
+	Command     pgtype.Text        `json:"command"`
+	Args        []byte             `json:"args"`
+	Env         []byte             `json:"env"`
+	Url         pgtype.Text        `json:"url"`
+	Headers     []byte             `json:"headers"`
+	CreatedBy   pgtype.UUID        `json:"created_by"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
 }
 
 type Member struct {

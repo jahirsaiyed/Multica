@@ -134,6 +134,21 @@ func buildMetaSkillContent(provider string, ctx TaskContextForEnv) string {
 		b.WriteString("\n")
 	}
 
+	if len(ctx.AgentMCPServers) > 0 {
+		b.WriteString("## MCP Servers\n\n")
+		b.WriteString("The following MCP (Model Context Protocol) servers are configured for this agent:\n\n")
+		b.WriteString("| Name | Transport | Endpoint |\n")
+		b.WriteString("|------|-----------|----------|\n")
+		for _, srv := range ctx.AgentMCPServers {
+			endpoint := srv.Command
+			if srv.Transport == "sse" {
+				endpoint = srv.URL
+			}
+			fmt.Fprintf(&b, "| %s | %s | %s |\n", srv.Name, srv.Transport, endpoint)
+		}
+		b.WriteString("\n")
+	}
+
 	b.WriteString("## Mentions\n\n")
 	b.WriteString("When referencing issues or people in comments, use the mention format so they render as interactive links:\n\n")
 	b.WriteString("- **Issue**: `[MUL-123](mention://issue/<issue-id>)` — renders as a clickable link to the issue\n")

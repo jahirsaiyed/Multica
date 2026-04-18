@@ -887,10 +887,12 @@ func (d *Daemon) runTask(ctx context.Context, task Task, provider string, taskLo
 
 	agentName := "agent"
 	var skills []SkillData
+	var mcpServers []MCPServerData
 	var instructions string
 	if task.Agent != nil {
 		agentName = task.Agent.Name
 		skills = task.Agent.Skills
+		mcpServers = task.Agent.MCPServers
 		instructions = task.Agent.Instructions
 	}
 
@@ -903,6 +905,7 @@ func (d *Daemon) runTask(ctx context.Context, task Task, provider string, taskLo
 		AgentName:         agentName,
 		AgentInstructions: instructions,
 		AgentSkills:       convertSkillsForEnv(skills),
+		AgentMCPServers:   convertMCPServersForEnv(mcpServers),
 		Repos:             convertReposForEnv(task.Repos),
 		ChatSessionID:     task.ChatSessionID,
 	}
@@ -1225,6 +1228,29 @@ func convertSkillsForEnv(skills []SkillData) []execenv.SkillContextForEnv {
 				Path:    f.Path,
 				Content: f.Content,
 			})
+		}
+	}
+	return result
+}
+
+func convertMCPServersForEnv(servers []MCPServerData) []execenv.MCPServerContextForEnv {
+	if len(servers) == 0 {
+		return nil
+	}
+	result := make([]execenv.MCPServerContextForEnv, len(servers))
+	for i, s := range servers {
+		result[i] = execenv.MCPServerContextForEnv{
+			Name:      s.Name,
+			Transport: s.Transport,
+			Args:      s.Args,
+			Env:       s.Env,
+			Headers:   s.Headers,
+		}
+		if s.Command != nil {
+			result[i].Command = *s.Command
+		}
+		if s.URL != nil {
+			result[i].URL = *s.URL
 		}
 	}
 	return result

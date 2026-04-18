@@ -238,6 +238,8 @@ func NewRouter(pool *pgxpool.Pool, hub *realtime.Hub, bus *events.Bus) chi.Route
 					r.Get("/tasks", h.ListAgentTasks)
 					r.Get("/skills", h.ListAgentSkills)
 					r.Put("/skills", h.SetAgentSkills)
+					r.Get("/mcp-servers", h.ListAgentMCPServers)
+					r.Put("/mcp-servers", h.SetAgentMCPServers)
 				})
 			})
 
@@ -253,6 +255,17 @@ func NewRouter(pool *pgxpool.Pool, hub *realtime.Hub, bus *events.Bus) chi.Route
 					r.Get("/files", h.ListSkillFiles)
 					r.Put("/files", h.UpsertSkillFile)
 					r.Delete("/files/{fileId}", h.DeleteSkillFile)
+				})
+			})
+
+			// MCP Servers
+			r.Route("/api/mcp-servers", func(r chi.Router) {
+				r.Get("/", h.ListMCPServers)
+				r.With(middleware.RequireWorkspaceRole(queries, "owner", "admin")).Post("/", h.CreateMCPServer)
+				r.Route("/{id}", func(r chi.Router) {
+					r.Get("/", h.GetMCPServer)
+					r.Put("/", h.UpdateMCPServer)
+					r.Delete("/", h.DeleteMCPServer)
 				})
 			})
 

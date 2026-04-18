@@ -436,6 +436,61 @@ type AgentSkillFileData struct {
 	Content string `json:"content"`
 }
 
+// LoadAgentMCPServers loads an agent's MCP server configs for task execution.
+func (s *TaskService) LoadAgentMCPServers(ctx context.Context, agentID pgtype.UUID) []AgentMCPServerData {
+	servers, err := s.Queries.ListAgentMCPServers(ctx, agentID)
+	if err != nil || len(servers) == 0 {
+		return nil
+	}
+
+	result := make([]AgentMCPServerData, 0, len(servers))
+	for _, srv := range servers {
+		data := AgentMCPServerData{
+			ID:        util.UUIDToString(srv.ID),
+			Name:      srv.Name,
+			Transport: srv.Transport,
+		}
+		if srv.Command.Valid {
+			data.Command = &srv.Command.String
+		}
+		if srv.Url.Valid {
+			data.URL = &srv.Url.String
+		}
+		if srv.Args != nil {
+			json.Unmarshal(srv.Args, &data.Args)
+		}
+		if data.Args == nil {
+			data.Args = []string{}
+		}
+		if srv.Env != nil {
+			json.Unmarshal(srv.Env, &data.Env)
+		}
+		if data.Env == nil {
+			data.Env = map[string]string{}
+		}
+		if srv.Headers != nil {
+			json.Unmarshal(srv.Headers, &data.Headers)
+		}
+		if data.Headers == nil {
+			data.Headers = map[string]string{}
+		}
+		result = append(result, data)
+	}
+	return result
+}
+
+// AgentMCPServerData represents an MCP server config for task execution responses.
+type AgentMCPServerData struct {
+	ID        string            `json:"id"`
+	Name      string            `json:"name"`
+	Transport string            `json:"transport"`
+	Command   *string           `json:"command,omitempty"`
+	Args      []string          `json:"args"`
+	Env       map[string]string `json:"env"`
+	URL       *string           `json:"url,omitempty"`
+	Headers   map[string]string `json:"headers"`
+}
+
 func priorityToInt(p string) int32 {
 	switch p {
 	case "urgent":
