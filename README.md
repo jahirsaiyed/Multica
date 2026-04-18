@@ -50,11 +50,37 @@ Multica manages the full agent lifecycle: from task assignment to execution moni
 
 ## Quick Install
 
+**macOS / Linux (Homebrew):**
+
+```bash
+brew tap jahirsaiyed/tap
+brew install multica
+```
+
+**macOS / Linux (install script):**
+
 ```bash
 curl -fsSL https://raw.githubusercontent.com/multica-ai/multica/main/scripts/install.sh | bash
 ```
 
-Installs the Multica CLI on macOS and Linux. Works with Homebrew or downloads the binary directly.
+**Windows (PowerShell):**
+
+```powershell
+irm https://raw.githubusercontent.com/jahirsaiyed/Multica/main/scripts/install.ps1 | iex
+```
+
+Installs to `%ProgramFiles%\multica` (requires Administrator) or falls back to `~\.multica\bin` for a user-scoped install. For an explicit user install without elevation:
+
+```powershell
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/jahirsaiyed/Multica/main/scripts/install.ps1))) -UserInstall
+```
+
+For self-hosted deployments, pass your server and app URLs:
+
+```powershell
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/jahirsaiyed/Multica/main/scripts/install.ps1))) `
+    -ServerUrl "https://your-backend.com" -AppUrl "https://your-frontend.com"
+```
 
 After installation:
 
@@ -116,6 +142,8 @@ The `multica` CLI connects your local machine to Multica — authenticate, manag
 | `multica issue list` | List issues in your workspace |
 | `multica issue create` | Create a new issue |
 | `multica update` | Update to the latest version |
+| `multica version` | Print version information |
+| `multica version --output json` | Print version info as JSON (includes commit, build date, Go version, os/arch) |
 
 See the [CLI and Daemon Guide](CLI_AND_DAEMON.md) for the full command reference.
 
