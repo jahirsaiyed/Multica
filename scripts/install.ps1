@@ -142,7 +142,7 @@ Write-Host ""
 if ($ServerUrl -ne "" -or $AppUrl -ne "") {
     Write-Host "    multica login" -ForegroundColor Cyan
 } else {
-    Write-Host "    multica login --server-url https://<backend> --app-url https://<frontend>" -ForegroundColor Cyan
+    Write-Host "    multica login --server-url https://multica.onrender.com --app-url https://multica-web-livid.vercel.app" -ForegroundColor Cyan
 }
 
 Write-Host "    multica daemon start" -ForegroundColor Cyan

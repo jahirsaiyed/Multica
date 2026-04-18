@@ -60,7 +60,14 @@ brew install multica
 **macOS / Linux (install script):**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/multica-ai/multica/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/jahirsaiyed/Multica/main/scripts/install.sh | bash
+```
+
+For self-hosted deployments, pass your server and app URLs:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/jahirsaiyed/Multica/main/scripts/install.sh | bash -s -- \
+    --server-url https://your-backend.com --app-url https://your-frontend.com
 ```
 
 **Windows (PowerShell):**
@@ -93,7 +100,11 @@ multica daemon stop    # Stop the daemon when done
 > **Self-hosting?** Add `--local` to deploy a full Multica server on your machine:
 >
 > ```bash
-> curl -fsSL https://raw.githubusercontent.com/multica-ai/multica/main/scripts/install.sh | bash -s -- --local
+> # macOS / Linux
+> curl -fsSL https://raw.githubusercontent.com/jahirsaiyed/Multica/main/scripts/install.sh | bash -s -- --local
+>
+> # Windows
+> & ([scriptblock]::Create((irm https://raw.githubusercontent.com/jahirsaiyed/Multica/main/scripts/install.ps1))) -ServerUrl "http://localhost:8080" -AppUrl "http://localhost:3000"
 > ```
 >
 > Requires Docker. See the [Self-Hosting Guide](SELF_HOSTING.md) for details.

@@ -2,20 +2,26 @@
 # Multica installer — one command to get started.
 #
 # Install CLI (default): connects to multica.ai
-#   curl -fsSL https://raw.githubusercontent.com/multica-ai/multica/main/scripts/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/jahirsaiyed/Multica/main/scripts/install.sh | bash
+#
+# Install CLI with custom server/app URLs:
+#   curl -fsSL https://raw.githubusercontent.com/jahirsaiyed/Multica/main/scripts/install.sh | bash -s -- \
+#       --server-url https://your-backend.com --app-url https://your-frontend.com
 #
 # Self-host: starts a local Multica server + installs CLI + configures
-#   curl -fsSL https://raw.githubusercontent.com/multica-ai/multica/main/scripts/install.sh | bash -s -- --local
+#   curl -fsSL https://raw.githubusercontent.com/jahirsaiyed/Multica/main/scripts/install.sh | bash -s -- --local
 #
 set -euo pipefail
 
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
-REPO_URL="https://github.com/multica-ai/multica.git"
-REPO_WEB_URL="https://github.com/multica-ai/multica"  # without .git, for GitHub web APIs
+REPO_URL="https://github.com/jahirsaiyed/Multica.git"
+REPO_WEB_URL="https://github.com/jahirsaiyed/Multica"  # without .git, for GitHub web APIs
 INSTALL_DIR="${MULTICA_INSTALL_DIR:-$HOME/.multica/server}"
-BREW_PACKAGE="multica-ai/tap/multica"
+BREW_PACKAGE="jahirsaiyed/tap/multica"
+SERVER_URL=""
+APP_URL=""
 
 # Colors (disabled when not a terminal)
 if [ -t 1 ] || [ -t 2 ]; then
@@ -60,7 +66,7 @@ detect_os() {
 # ---------------------------------------------------------------------------
 install_cli_brew() {
   info "Installing Multica CLI via Homebrew..."
-  if ! brew tap multica-ai/tap 2>/dev/null; then
+  if ! brew tap jahirsaiyed/tap 2>/dev/null; then
     fail "Failed to add Homebrew tap. Check your network connection."
   fi
   # brew install exits non-zero if already installed on older Homebrew versions
@@ -85,7 +91,7 @@ install_cli_binary() {
     fail "Could not determine latest release. Check your network connection."
   fi
 
-  local url="https://github.com/multica-ai/multica/releases/download/${latest}/multica_${OS}_${ARCH}.tar.gz"
+  local url="https://github.com/jahirsaiyed/Multica/releases/download/${latest}/multica_${OS}_${ARCH}.tar.gz"
   local tmp_dir
   tmp_dir=$(mktemp -d)
 
@@ -296,9 +302,11 @@ configure_local() {
 # ---------------------------------------------------------------------------
 configure_cloud() {
   info "Configuring CLI for Multica Cloud..."
-  multica config set server_url https://api.multica.ai 2>/dev/null || true
-  multica config set app_url https://multica.ai 2>/dev/null || true
-  ok "CLI configured for multica.ai"
+  local server_url="${SERVER_URL:-https://api.multica.ai}"
+  local app_url="${APP_URL:-https://multica.ai}"
+  multica config set server_url "$server_url" 2>/dev/null || true
+  multica config set app_url "$app_url" 2>/dev/null || true
+  ok "CLI configured for $app_url"
 }
 
 # ---------------------------------------------------------------------------
@@ -315,21 +323,25 @@ run_default() {
   configure_cloud
 
   printf "\n"
-  printf "${BOLD}${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}\n"
-  printf "${BOLD}${GREEN}  ✓ Multica CLI is installed!${RESET}\n"
-  printf "${BOLD}${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}\n"
+  printf "${BOLD}${GREEN}  ===========================================${RESET}\n"
+  printf "${BOLD}${GREEN}  ✓ Multica CLI installed!${RESET}\n"
+  printf "${BOLD}${GREEN}  ===========================================${RESET}\n"
   printf "\n"
-  printf "  ${BOLD}Next steps:${RESET}\n"
+  printf "  ${BOLD}Next steps (open a new terminal):${RESET}\n"
   printf "\n"
-  printf "     ${CYAN}multica login${RESET}          # Authenticate with multica.ai\n"
-  printf "     ${CYAN}multica daemon start${RESET}   # Start the agent daemon\n"
+  if [ -n "$SERVER_URL" ] || [ -n "$APP_URL" ]; then
+    printf "    ${CYAN}multica login${RESET}          # Authenticate\n"
+  else
+    printf "    ${CYAN}multica login${RESET}          # Authenticate with multica.ai\n"
+  fi
+  printf "    ${CYAN}multica daemon start${RESET}   # Start the agent daemon\n"
   printf "\n"
   printf "  Or do it all in one command:\n"
   printf "\n"
-  printf "     ${CYAN}multica setup${RESET}\n"
+  printf "    ${CYAN}multica setup${RESET}\n"
   printf "\n"
   printf "  ${BOLD}Self-hosting?${RESET} Re-run with --local:\n"
-  printf "     curl -fsSL https://raw.githubusercontent.com/multica-ai/multica/main/scripts/install.sh | bash -s -- --local\n"
+  printf "    curl -fsSL https://raw.githubusercontent.com/jahirsaiyed/Multica/main/scripts/install.sh | bash -s -- --local\n"
   printf "\n"
 }
 
@@ -349,28 +361,29 @@ run_local() {
   configure_local
 
   printf "\n"
-  printf "${BOLD}${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}\n"
+  printf "${BOLD}${GREEN}  ===========================================${RESET}\n"
   printf "${BOLD}${GREEN}  ✓ Multica is installed and running!${RESET}\n"
-  printf "${BOLD}${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}\n"
+  printf "${BOLD}${GREEN}  ===========================================${RESET}\n"
   printf "\n"
   printf "  ${BOLD}Frontend:${RESET}  http://localhost:3000\n"
   printf "  ${BOLD}Backend:${RESET}   http://localhost:8080\n"
   printf "  ${BOLD}Server at:${RESET} %s\n" "$INSTALL_DIR"
   printf "\n"
-  printf "  ${BOLD}Next steps:${RESET}\n"
+  printf "  ${BOLD}Next steps (open a new terminal):${RESET}\n"
+  printf "\n"
   printf "  1. Open ${CYAN}http://localhost:3000${RESET} in your browser\n"
   printf "  2. Log in with any email + verification code: ${BOLD}888888${RESET}\n"
   printf "  3. Then run:\n"
   printf "\n"
-  printf "     ${CYAN}multica login${RESET}          # Authenticate (opens browser)\n"
-  printf "     ${CYAN}multica daemon start${RESET}   # Start the agent daemon\n"
+  printf "    ${CYAN}multica login${RESET}          # Authenticate (opens browser)\n"
+  printf "    ${CYAN}multica daemon start${RESET}   # Start the agent daemon\n"
   printf "\n"
   printf "  ${BOLD}To stop all services:${RESET}\n"
-  printf "     curl -fsSL https://raw.githubusercontent.com/multica-ai/multica/main/scripts/install.sh | bash -s -- --stop\n"
+  printf "    curl -fsSL https://raw.githubusercontent.com/jahirsaiyed/Multica/main/scripts/install.sh | bash -s -- --stop\n"
   printf "\n"
   printf "  Or manually:\n"
-  printf "     cd %s && docker compose -f docker-compose.selfhost.yml down\n" "$INSTALL_DIR"
-  printf "     multica daemon stop\n"
+  printf "    cd %s && docker compose -f docker-compose.selfhost.yml down\n" "$INSTALL_DIR"
+  printf "    multica daemon stop\n"
   printf "\n"
 }
 
@@ -408,14 +421,20 @@ main() {
 
   while [ $# -gt 0 ]; do
     case "$1" in
-      --local)    mode="local" ;;
-      --stop)     mode="stop" ;;
+      --local)       mode="local" ;;
+      --stop)        mode="stop" ;;
+      --server-url)  shift; SERVER_URL="$1" ;;
+      --server-url=*) SERVER_URL="${1#*=}" ;;
+      --app-url)     shift; APP_URL="$1" ;;
+      --app-url=*)   APP_URL="${1#*=}" ;;
       --help|-h)
-        echo "Usage: install.sh [--local | --stop]"
+        echo "Usage: install.sh [--local | --stop] [--server-url URL] [--app-url URL]"
         echo ""
-        echo "  (default)  Install the Multica CLI to connect to multica.ai"
-        echo "  --local    Self-host: set up a local Multica server + CLI"
-        echo "  --stop     Stop a self-hosted installation"
+        echo "  (default)         Install the Multica CLI to connect to multica.ai"
+        echo "  --local           Self-host: set up a local Multica server + CLI"
+        echo "  --stop            Stop a self-hosted installation"
+        echo "  --server-url URL  Configure CLI to use a custom backend URL"
+        echo "  --app-url URL     Configure CLI to use a custom frontend URL"
         exit 0
         ;;
       *) warn "Unknown option: $1" ;;
