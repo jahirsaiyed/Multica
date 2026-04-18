@@ -18,6 +18,7 @@ The open-source managed agents platform.<br/>
 Turn coding agents into real teammates — assign tasks, track progress, compound skills.
 
 [![CI](https://github.com/multica-ai/multica/actions/workflows/ci.yml/badge.svg)](https://github.com/multica-ai/multica/actions/workflows/ci.yml)
+[![Deploy](https://github.com/multica-ai/multica/actions/workflows/deploy.yml/badge.svg)](https://github.com/multica-ai/multica/actions/workflows/deploy.yml)
 [![GitHub stars](https://img.shields.io/github/stars/multica-ai/multica?style=flat)](https://github.com/multica-ai/multica/stargazers)
 
 [Website](https://multica.ai) · [Cloud](https://multica.ai/app) · [X](https://x.com/multica_hq) · [Deploy](DEPLOYING.md) · [Self-Hosting](SELF_HOSTING.md) · [Contributing](CONTRIBUTING.md)
@@ -44,6 +45,7 @@ Multica manages the full agent lifecycle: from task assignment to execution moni
 - **Autonomous Execution** — set it and forget it. Full task lifecycle management (enqueue, claim, start, complete/fail) with real-time progress streaming via WebSocket.
 - **Reusable Skills** — every solution becomes a reusable skill for the whole team. Deployments, migrations, code reviews — skills compound your team's capabilities over time.
 - **Unified Runtimes** — one dashboard for all your compute. Local daemons and cloud runtimes, auto-detection of available CLIs, real-time monitoring.
+- **MCP Servers** — configure shared Model Context Protocol servers (stdio or HTTP) per workspace. Agents automatically inherit the configured tools without any per-agent setup.
 - **Multi-Workspace** — organize work across teams with workspace-level isolation. Each workspace has its own agents, issues, and settings.
 
 ---
@@ -185,7 +187,12 @@ See the [CLI and Daemon Guide](CLI_AND_DAEMON.md) for the full command reference
 
 ## Deployment
 
-Multica ships with a GitHub Actions pipeline that deploys automatically on every push to `main`:
+Multica ships with a GitHub Actions pipeline. CI runs on every push to `main` and on every tag. Production deployments are triggered by version tags:
+
+```bash
+git tag v0.x.x
+git push origin v0.x.x   # triggers deploy + CLI release
+```
 
 | Layer | Platform |
 |-------|----------|
