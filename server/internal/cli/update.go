@@ -24,7 +24,7 @@ type GitHubRelease struct {
 // FetchLatestRelease fetches the latest release tag from the multica GitHub repo.
 func FetchLatestRelease() (*GitHubRelease, error) {
 	client := &http.Client{Timeout: 10 * time.Second}
-	req, err := http.NewRequest(http.MethodGet, "https://api.github.com/repos/multica-ai/multica/releases/latest", nil)
+	req, err := http.NewRequest(http.MethodGet, "https://api.github.com/repos/jahirsaiyed/Multica/releases/latest", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +83,7 @@ func GetBrewPrefix() string {
 // UpdateViaBrew runs `brew upgrade multica-ai/tap/multica`.
 // Returns the combined output and any error.
 func UpdateViaBrew() (string, error) {
-	cmd := exec.Command("brew", "upgrade", "multica-ai/tap/multica")
+	cmd := exec.Command("brew", "upgrade", "jahirsaiyed/tap/multica")
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return string(out), fmt.Errorf("brew upgrade failed: %w", err)
@@ -110,7 +110,7 @@ func UpdateViaDownload(targetVersion string) (string, error) {
 		tag = "v" + tag
 	}
 	assetName := fmt.Sprintf("multica_%s_%s.tar.gz", runtime.GOOS, runtime.GOARCH)
-	downloadURL := fmt.Sprintf("https://github.com/multica-ai/multica/releases/download/%s/%s", tag, assetName)
+	downloadURL := fmt.Sprintf("https://github.com/jahirsaiyed/Multica/releases/download/%s/%s", tag, assetName)
 
 	// Download the tarball.
 	client := &http.Client{Timeout: 120 * time.Second}
