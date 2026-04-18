@@ -1,6 +1,7 @@
 package execenv
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -37,6 +38,12 @@ func writeContextFiles(workDir, provider string, ctx TaskContextForEnv) error {
 			if err := writeSkillFiles(skillsDir, ctx.AgentSkills); err != nil {
 				return fmt.Errorf("write skill files: %w", err)
 			}
+		}
+	}
+
+	if len(ctx.AgentMCPServers) > 0 {
+		if err := writeMCPConfig(workDir, provider, ctx.AgentMCPServers); err != nil {
+			return fmt.Errorf("write mcp config: %w", err)
 		}
 	}
 
@@ -108,6 +115,64 @@ func writeSkillFiles(skillsDir string, skills []SkillContextForEnv) error {
 	}
 
 	return nil
+}
+
+// writeMCPConfig writes the MCP server configuration file for the given provider.
+//
+// Claude:    writes {workDir}/.mcp.json  (discovered as project-level MCP config)
+// OpenCode:  writes {workDir}/.mcp.json  (same format, discovered natively)
+// Others:    no-op (MCP config injection not supported for this provider)
+func writeMCPConfig(workDir, provider string, servers []MCPServerContextForEnv) error {
+	switch provider {
+	case "claude", "opencode":
+		// Both Claude Code and OpenCode use the .mcp.json format.
+	default:
+		return nil
+	}
+
+	type stdioServer struct {
+		Type    string            `json:"type"`
+		Command string            `json:"command"`
+		Args    []string          `json:"args,omitempty"`
+		Env     map[string]string `json:"env,omitempty"`
+	}
+	type sseServer struct {
+		Type    string            `json:"type"`
+		URL     string            `json:"url"`
+		Headers map[string]string `json:"headers,omitempty"`
+	}
+
+	mcpServers := make(map[string]any, len(servers))
+	for _, srv := range servers {
+		switch srv.Transport {
+		case "stdio":
+			entry := stdioServer{
+				Type:    "stdio",
+				Command: srv.Command,
+				Args:    srv.Args,
+			}
+			if len(srv.Env) > 0 {
+				entry.Env = srv.Env
+			}
+			mcpServers[srv.Name] = entry
+		case "sse":
+			entry := sseServer{
+				Type: "sse",
+				URL:  srv.URL,
+			}
+			if len(srv.Headers) > 0 {
+				entry.Headers = srv.Headers
+			}
+			mcpServers[srv.Name] = entry
+		}
+	}
+
+	config := map[string]any{"mcpServers": mcpServers}
+	data, err := json.MarshalIndent(config, "", "  ")
+	if err != nil {
+		return fmt.Errorf("marshal mcp config: %w", err)
+	}
+	return os.WriteFile(filepath.Join(workDir, ".mcp.json"), data, 0o644)
 }
 
 // renderIssueContext builds the markdown content for issue_context.md.

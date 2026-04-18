@@ -527,6 +527,111 @@ func TestInjectRuntimeConfigOpencode(t *testing.T) {
 	}
 }
 
+func TestWriteContextFilesMCPConfigClaude(t *testing.T) {
+	t.Parallel()
+	dir := t.TempDir()
+
+	ctx := TaskContextForEnv{
+		IssueID: "mcp-test-issue",
+		AgentMCPServers: []MCPServerContextForEnv{
+			{
+				Name:      "filesystem",
+				Transport: "stdio",
+				Command:   "npx",
+				Args:      []string{"-y", "@modelcontextprotocol/server-filesystem", "/tmp"},
+				Env:       map[string]string{"NODE_ENV": "production"},
+			},
+			{
+				Name:      "remote-api",
+				Transport: "sse",
+				URL:       "http://localhost:9000/sse",
+				Headers:   map[string]string{"Authorization": "Bearer tok"},
+			},
+		},
+	}
+
+	if err := writeContextFiles(dir, "claude", ctx); err != nil {
+		t.Fatalf("writeContextFiles failed: %v", err)
+	}
+
+	data, err := os.ReadFile(filepath.Join(dir, ".mcp.json"))
+	if err != nil {
+		t.Fatalf("expected .mcp.json to exist: %v", err)
+	}
+	s := string(data)
+	for _, want := range []string{
+		`"mcpServers"`,
+		`"filesystem"`,
+		`"stdio"`,
+		`"npx"`,
+		`"@modelcontextprotocol/server-filesystem"`,
+		`"NODE_ENV"`,
+		`"remote-api"`,
+		`"sse"`,
+		`"http://localhost:9000/sse"`,
+		`"Authorization"`,
+	} {
+		if !strings.Contains(s, want) {
+			t.Errorf(".mcp.json missing %q", want)
+		}
+	}
+}
+
+func TestWriteContextFilesMCPConfigOpencode(t *testing.T) {
+	t.Parallel()
+	dir := t.TempDir()
+
+	ctx := TaskContextForEnv{
+		IssueID: "mcp-opencode-test",
+		AgentMCPServers: []MCPServerContextForEnv{
+			{Name: "myserver", Transport: "stdio", Command: "node", Args: []string{"server.js"}},
+		},
+	}
+
+	if err := writeContextFiles(dir, "opencode", ctx); err != nil {
+		t.Fatalf("writeContextFiles failed: %v", err)
+	}
+
+	if _, err := os.Stat(filepath.Join(dir, ".mcp.json")); os.IsNotExist(err) {
+		t.Fatal("expected .mcp.json to exist for opencode provider")
+	}
+}
+
+func TestWriteContextFilesMCPConfigSkippedForCodex(t *testing.T) {
+	t.Parallel()
+	dir := t.TempDir()
+
+	ctx := TaskContextForEnv{
+		IssueID: "mcp-codex-test",
+		AgentMCPServers: []MCPServerContextForEnv{
+			{Name: "myserver", Transport: "stdio", Command: "node"},
+		},
+	}
+
+	if err := writeContextFiles(dir, "codex", ctx); err != nil {
+		t.Fatalf("writeContextFiles failed: %v", err)
+	}
+
+	if _, err := os.Stat(filepath.Join(dir, ".mcp.json")); !os.IsNotExist(err) {
+		t.Error("expected .mcp.json to NOT exist for codex provider")
+	}
+}
+
+func TestWriteContextFilesNoMCPWhenEmpty(t *testing.T) {
+	t.Parallel()
+	dir := t.TempDir()
+
+	ctx := TaskContextForEnv{IssueID: "no-mcp-test"}
+
+	if err := writeContextFiles(dir, "claude", ctx); err != nil {
+		t.Fatalf("writeContextFiles failed: %v", err)
+	}
+
+	if _, err := os.Stat(filepath.Join(dir, ".mcp.json")); !os.IsNotExist(err) {
+		t.Error("expected .mcp.json to NOT exist when no MCP servers configured")
+	}
+}
+
 func TestPrepareWithRepoContextOpencode(t *testing.T) {
 	t.Parallel()
 	workspacesRoot := t.TempDir()
