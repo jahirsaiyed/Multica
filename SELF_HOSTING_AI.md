@@ -6,7 +6,7 @@ This document is designed for AI agents to execute. Follow these steps exactly t
 
 - Docker and Docker Compose installed
 - Homebrew installed (for CLI)
-- At least one AI agent CLI on PATH: `claude` or `codex`
+- At least one AI agent available: `claude`, `codex`, `opencode`, `openclaw`, or `hermes` on PATH — or set `MULTICA_GEMMA_API_KEY` to use the Gemma HTTP backend (no CLI required)
 
 ## One-Command Install
 

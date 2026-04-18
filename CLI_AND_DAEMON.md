@@ -135,8 +135,12 @@ The daemon auto-detects these AI CLIs on your PATH:
 |-----|---------|-------------|
 | [Claude Code](https://docs.anthropic.com/en/docs/claude-code) | `claude` | Anthropic's coding agent |
 | [Codex](https://github.com/openai/codex) | `codex` | OpenAI's coding agent |
+| [OpenCode](https://github.com/sst/opencode) | `opencode` | Open-source coding agent |
+| [OpenClaw](https://github.com/multica-ai/openclaw) | `openclaw` | Multica's Claude-compatible wrapper |
+| [Hermes](https://github.com/multica-ai/hermes) | `hermes` | Multica's lightweight agent |
+| Gemma (HTTP API) | — | Google's Gemma via Generative Language API — no CLI required, set `MULTICA_GEMMA_API_KEY` |
 
-You need at least one installed. The daemon registers each detected CLI as an available runtime.
+You need at least one agent available. The daemon registers each detected CLI (or API key) as a runtime.
 
 ### How It Works
 
@@ -169,6 +173,14 @@ Agent-specific overrides:
 | `MULTICA_CLAUDE_MODEL` | Override the Claude model used |
 | `MULTICA_CODEX_PATH` | Custom path to the `codex` binary |
 | `MULTICA_CODEX_MODEL` | Override the Codex model used |
+| `MULTICA_OPENCODE_PATH` | Custom path to the `opencode` binary |
+| `MULTICA_OPENCODE_MODEL` | Override the OpenCode model used |
+| `MULTICA_OPENCLAW_PATH` | Custom path to the `openclaw` binary |
+| `MULTICA_OPENCLAW_MODEL` | Override the OpenClaw model used |
+| `MULTICA_HERMES_PATH` | Custom path to the `hermes` binary |
+| `MULTICA_HERMES_MODEL` | Override the Hermes model used |
+| `MULTICA_GEMMA_API_KEY` | Google AI API key — enables the Gemma backend (no CLI needed) |
+| `MULTICA_GEMMA_MODEL` | Override the Gemma model (default: `gemma-4-26b-a4b-it`) |
 
 ### Self-Hosted Server
 

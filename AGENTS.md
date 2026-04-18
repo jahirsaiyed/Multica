@@ -95,7 +95,7 @@ Browser ← WSClient (shared/api) ← WebSocket ← Hub.Broadcast() ← Handlers
 - **Auth** (`internal/auth/` + `internal/middleware/`): JWT (HS256). Middleware sets `X-User-ID` and `X-User-Email` headers. Login creates user on-the-fly if not found.
 - **Task lifecycle** (`internal/service/task.go`): Orchestrates agent work — enqueue → claim → start → complete/fail. Syncs issue status automatically and broadcasts WS events at each transition.
 - **Agent SDK** (`pkg/agent/`): Unified `Backend` interface for executing prompts via Claude Code or Codex. Each backend spawns its CLI and streams results via `Session.Messages` + `Session.Result` channels.
-- **Daemon** (`internal/daemon/`): Local agent runtime — auto-detects available CLIs (claude, codex), registers runtimes, polls for tasks, routes by provider.
+- **Daemon** (`internal/daemon/`): Local agent runtime — auto-detects available CLIs (claude, codex, opencode, openclaw, hermes) and the Gemma HTTP backend (via `MULTICA_GEMMA_API_KEY`), registers runtimes, polls for tasks, routes by provider.
 - **CLI** (`internal/cli/`): Shared helpers for the `multica` CLI — API client, config management, output formatting.
 - **Events** (`internal/events/`): Internal event bus for decoupled communication between handlers and services.
 - **Logging** (`internal/logger/`): Structured logging via slog. `LOG_LEVEL` env var controls level (debug, info, warn, error).

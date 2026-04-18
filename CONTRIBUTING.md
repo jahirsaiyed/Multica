@@ -297,6 +297,20 @@ Notes:
 - E2E tests create their own workspace and issue fixtures
 - the check flow starts backend/frontend only if they are not already running
 
+## CI / CD
+
+Two GitHub Actions workflows run on this repo:
+
+| Workflow | Trigger | What it does |
+|----------|---------|--------------|
+| `ci.yml` | Push or PR to `main` | Runs frontend build + typecheck + tests, and Go build + migrations + tests |
+| `deploy.yml` | Push to `main` | Runs full CI, then deploys frontend to Vercel and triggers a Render deploy hook for the backend |
+| `release.yml` | Push of a `v*` tag | Runs Go tests, then GoReleaser builds multi-platform CLI binaries and publishes to GitHub Releases |
+
+`deploy.yml` only runs when both CI jobs pass. Deploy jobs run in parallel after CI, so a failed test will never ship to production.
+
+For first-time deployment setup (secrets, Render blueprint, Vercel project), see [DEPLOYING.md](DEPLOYING.md).
+
 ## Local Codex Daemon
 
 Run the local daemon:
